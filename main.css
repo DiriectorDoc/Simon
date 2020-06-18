@@ -1,7 +1,7 @@
 BODY{
     background-color: #000000;
 }
-CANVAS{
+#canvas{
     padding: 0;
     margin: auto;
     display: block;
