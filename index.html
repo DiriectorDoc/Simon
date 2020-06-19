@@ -3,11 +3,20 @@
     <HEAD>
         <TITLE>Simon</TITLE>
         <LINK href="main.css" rel="stylesheet" type="text/css" />
+		<link rel="icon" type="image/png" href="icon.png">
         <SCRIPT src="main.js"></SCRIPT>
     </HEAD>
     <BODY>
         <DIV class="container-fluid" id="page">
-			<CANVAS id="canvas" width="500" height="500" />
+			<DIV class="social">
+				<A href="https://github.com/DiriectorDoc/Simon">
+					<IMG id="github" alt="GitHub" />
+				</A>
+			</DIV>
+			<DIV class="game">
+				<CANVAS id="canvas" width="500" height="500"></CANVAS>
+				<BUTTON type="button" id="play">Play</BUTTON>
+			</DIV>
         </DIV>
     </BODY>
 </HTML>
