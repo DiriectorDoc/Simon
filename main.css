@@ -1,6 +1,7 @@
 BODY{
     background-color: #000000;
 }
+
 #canvas{
     padding: 0;
     margin: auto;
@@ -12,6 +13,13 @@ BODY{
     bottom: 0;
     left: 0;
     right: 0;
+}
+
+#play{
+	transform: translate(0, 85vh);
+	display: block;
+    margin: auto;
+	height: 2em;
 }
 
 .social IMG{

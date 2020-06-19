@@ -35,8 +35,9 @@ window.onload = function(){
 		quadrant,				//Value from 0⁠ – 3
 		distX,					//Mouse's X coord's distance from centre
 		distY,					//Mouse's Y coord's distance from centre
-		pressable = true,		//Controls when the player can and can't press the buttons
-		position = 0;			//Haw far into the sequence the player has played
+		pressable = false,		//Controls when the player can and can't press the buttons
+		position = 0,			//Haw far into the sequence the player has played
+		iterator;				//Used for playing back the pattern
 
 	let buttonColours = ["#00ff00", "#ff0000", "#ffff00", "#0000ff"],
 		buttonGradients = new Array();
@@ -111,7 +112,7 @@ window.onload = function(){
 	function iterate(){
 		var i = 0;
 		pressable = false;
-		let iterator = setInterval(function(){
+		iterator = setInterval(function(){
 			Buttons[pattern[i]].press();
 			if(++i >= pattern.length){
 				pressable = true;
@@ -156,24 +157,9 @@ window.onload = function(){
 	}
 
 	canvas.addEventListener("click", function(){
-		let radius;
-		switch(quadrant){
-			case green:
-				radius = Math.hypot(245 - distX , 245 - distY);
-				break;
-			case red:
-				radius = Math.hypot(255 - distX , 245 - distY);
-				break;
-			case yellow:
-				radius = Math.hypot(245 - distX , 255 - distY);
-				break;
-			case blue:
-				radius = Math.hypot(255 - distX , 255 - distY);
-				break;
-			default:
-				console.warn("Somehow got input from quadrant " + quadrant + ". This quadrand does not exist.");
-				return;
-		}
+		let radius = Math.hypot(245 + (quadrant % 2 * 10) - distX , 245 + Math.floor(quadrant/3) - distY);
+		if(quadrant > 3 || quadrant < 0)
+			console.warn("Somehow got input from quadrant " + quadrant + ". This quadrand does not exist.");
 		if(radius > 95 && radius < 200){
 			if(pressable){
 				if(quadrant == pattern[position]){
@@ -227,20 +213,35 @@ window.onload = function(){
 	A5.addEventListener("canplaythrough", canBePlayed3, false);
 	C5.addEventListener("canplaythrough", canBePlayed4, false);
 	Buzz.addEventListener("canplaythrough", canBePlayed5, false);
-
-
-	for(var i = 0; i < 4; i++){
-		pattern.push(pickRandom(green, red, yellow, blue));
-	}
-	logPattern("Starting pattern");
+	
 	drawGame();
-	pressable = false;
-	iterate();
-	setTimeout(function(){
-		pressable = true;
-	}, 650 * (pattern.length + 1));
-}
+	
+	let playButton = document.getElementById("play");
 
+	function resetGame(){
+		clearInterval(iterator);
+		pattern = [];
+		for(var i = 0; i < 4; i++){
+			pattern.push(pickRandom(green, red, yellow, blue));
+		}
+		logPattern("New pattern");
+		setTimeout(function(){
+			iterate();
+		}, 750);
+	}
+	
+	function startGame(){
+		for(var i = 0; i < 4; i++){
+			pattern.push(pickRandom(green, red, yellow, blue));
+		}
+		logPattern("Starting pattern");
+		iterate();
+		playButton.removeEventListener("click", startGame);
+		playButton.addEventListener("click", resetGame);
+		playButton.innerHTML = "Reset";
+	}
+	playButton.addEventListener("click", startGame);
+}
 /* This has no function other than suppressing IDE errors */
 if(!window){
 	var console,document,window,setTimeout,setInterval,clearInterval;
