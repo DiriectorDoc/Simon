@@ -47,53 +47,31 @@ window.onload = function(){
 			buttonGradients[i].addColorStop(1, buttonColours[i]);
 		}
 	})([140, 360, 140, 360], [140, 140, 360, 360]) // 140 = CENTRE/2 + 15, 360 = (CENTRE + CENTRE/2) - 15
-
-	let Buttons = {
-		0: {
+	
+	function buttonObj(i, p1, p2, a1, a2, colour, note){ //This is what creates the brain of each button
+		return {
 			"on": function(){
-				drawButton(CENTRE-5, CENTRE-5, PI, HALF_THREE_PI, buttonGradients[green], "#007700");
+				drawButton(p1, p2, a1, a2, buttonGradients[i], colour);
 			},
 			"off": function(){
-				drawButton(CENTRE-5, CENTRE-5, PI, HALF_THREE_PI, buttonColours[green], "#007700");
+				drawButton(p1, p2, a1, a2, buttonColours[i], colour);
 			},
-		},
-		1: {
-			"on": function(){
-				drawButton(CENTRE+5, CENTRE-5, HALF_THREE_PI, 0, buttonGradients[red], "#770000");
-			},
-			"off": function(){
-				drawButton(CENTRE+5, CENTRE-5, HALF_THREE_PI, 0, buttonColours[red], "#770000");
-			}
-		},
-		2: {
-			"on": function(){
-				drawButton(CENTRE-5, CENTRE+5, HALF_PI, PI, buttonGradients[yellow], "#777700");
-			},
-			"off": function(){
-				drawButton(CENTRE-5, CENTRE+5, HALF_PI, PI, buttonColours[yellow], "#777700");
-			}
-		},
-		3: {
-			"on": function(){
-				drawButton(CENTRE+5, CENTRE+5, 0, HALF_PI, buttonGradients[blue], "#000077");
-			},
-			"off": function(){
-				drawButton(CENTRE+5, CENTRE+5, 0, HALF_PI, buttonColours[blue], "#000077");
+			"press": function(){
+				note.play();
+				Buttons[i].on();
+				setTimeout(function(){
+					Buttons[i].off();
+				}, 400);
 			}
 		}
-	};
+	}
 
-	Buttons.green = Buttons[0];
-	Buttons.red = Buttons[1];
-	Buttons.yellow = Buttons[2];
-	Buttons.blue = Buttons[3];
-	Buttons.press = function(button){
-		[A5, E5, C5, A4][button].play();
-		Buttons[button].on();
-		setTimeout(function(){
-			Buttons[button].off();
-		}, 400);
-	};
+	const Buttons = [ //This is where all the buttons' brains are kept; all neatly kept away in one place
+		buttonObj(green, CENTRE-5, CENTRE-5, PI, HALF_THREE_PI, "#007700", A5),
+		buttonObj(red, CENTRE+5, CENTRE-5, HALF_THREE_PI, 0, "#770000", E5),
+		buttonObj(yellow, CENTRE-5, CENTRE+5, HALF_PI, PI, "#777700", C5),
+		buttonObj(blue, CENTRE+5, CENTRE+5, 0, HALF_PI, "#000077", A4)
+	];
 
 
 	function pickRandom(){
@@ -125,10 +103,8 @@ window.onload = function(){
 		c.fill();
 		c.stroke();
 
-		Buttons.green.off();
-		Buttons.red.off();
-		Buttons.yellow.off();
-		Buttons.blue.off();
+		for(var i = 0; i < 4; i++)
+			Buttons[i].off();
 	}
 
 	/* Plays the pattern. Each item in the pattern is played within 650ms of the next. Prevents user input while iterating */
@@ -136,7 +112,7 @@ window.onload = function(){
 		var i = 0;
 		pressable = false;
 		let iterator = setInterval(function(){
-			Buttons.press(pattern[i]);
+			Buttons[pattern[i]].press();
 			if(++i >= pattern.length){
 				pressable = true;
 				clearInterval(iterator);
@@ -202,10 +178,10 @@ window.onload = function(){
 			if(pressable){
 				if(quadrant == pattern[position]){
 					pressable = false;
-					Buttons.press(quadrant);
+					Buttons[quadrant].press();
 					setTimeout(function(){
 						pressable = true
-					}, 575);
+					}, 425);
 				} else {
 					Buzz.play();
 					pressable = false;
