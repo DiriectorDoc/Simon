@@ -1,16 +1,17 @@
 /*eslint-env es6*/
 /*eslint no-mixed-spaces-and-tabs: ["error", "smart-tabs"]*/
 window.onload = function(){
-
 	/* Variables for readability */
 	"use strict";
-	const green		= 0,
-		  red		= 1,
-		  yellow	= 2,
-		  blue		= 3;
+	const GREEN		= 0,
+		  RED		= 1,
+		  YELLOW	= 2,
+		  BLUE		= 3,
+		  COLOURS	= ["Green", "Red", "Yellow", "Blue"];
 
-	let canvas	= document.getElementById("canvas"),
-		c		= canvas.getContext("2d");
+	let canvas		= document.getElementById("canvas"),
+		c			= canvas.getContext("2d"),
+		playButton	= document.getElementById("play");
 
 	const PI			= Math.PI,
 		  HALF_PI		= PI/2,
@@ -31,13 +32,13 @@ window.onload = function(){
 	console.time("Time to load sound files");
 	
 
-	let pattern = new Array(),	//Stores randomly generated pattern
-		quadrant,				//Value from 0⁠ – 3
-		distX,					//Mouse's X coord's distance from centre
-		distY,					//Mouse's Y coord's distance from centre
-		pressable = false,		//Controls when the player can and can't press the buttons
-		position = 0,			//Haw far into the sequence the player has played
-		iterator;				//Used for playing back the pattern
+	let pattern = [],		//Stores randomly generated pattern
+		position = 0,		//Haw far into the sequence the player has played
+		quadrant,			//Value from 0⁠ – 3
+		distX,				//Mouse's X coord's distance from centre
+		distY,				//Mouse's Y coord's distance from centre
+		pressable = false,	//Controls when the player can and can't press the buttons
+		iterator;			//Used for playing back the pattern
 
 	let buttonColours = ["#00ff00", "#ff0000", "#ffff00", "#0000ff"],
 		buttonGradients = new Array();
@@ -68,10 +69,10 @@ window.onload = function(){
 	}
 
 	const Buttons = [ //This is where all the buttons' brains are kept; all neatly kept away in one place
-		buttonObj(green, CENTRE-5, CENTRE-5, PI, HALF_THREE_PI, "#007700", A5),
-		buttonObj(red, CENTRE+5, CENTRE-5, HALF_THREE_PI, 0, "#770000", E5),
-		buttonObj(yellow, CENTRE-5, CENTRE+5, HALF_PI, PI, "#777700", C5),
-		buttonObj(blue, CENTRE+5, CENTRE+5, 0, HALF_PI, "#000077", A4)
+		buttonObj(GREEN, CENTRE-5, CENTRE-5, PI, HALF_THREE_PI, "#007700", A5),
+		buttonObj(RED, CENTRE+5, CENTRE-5, HALF_THREE_PI, 0, "#770000", E5),
+		buttonObj(YELLOW, CENTRE-5, CENTRE+5, HALF_PI, PI, "#777700", C5),
+		buttonObj(BLUE, CENTRE+5, CENTRE+5, 0, HALF_PI, "#000077", A4)
 	];
 
 
@@ -131,8 +132,10 @@ window.onload = function(){
 			pressable = false;
 			position = 0;
 			setTimeout(function(){
-				pattern.push(pickRandom(green, red, yellow, blue));
-				console.info("Added " + ["Green", "Red", "Yellow", "Blue"][pattern[pattern.length - 1]] + " to %cpattern", "font-style: italic;")
+				pattern.push(pickRandom(GREEN, RED, YELLOW, BLUE));
+				if(Game.logUpadtes){
+					console.info("Added " + COLOURS[pattern[pattern.length - 1]] + " to %cpattern", "font-style: italic;")
+				}
 				iterate();
 			}, 400);
 		}
@@ -140,8 +143,8 @@ window.onload = function(){
 
 	function logPattern(message){
 		console.groupCollapsed(message);
-		for(var i = 0; i < 4; i++){
-			console.log("Position " + (i + 1) + ": " + ["Green", "Red", "Yellow", "Blue"][pattern[i]]);
+		for(var i in pattern){
+			console.log("Item " + i + ": " + COLOURS[pattern[i]]);
 		}
 		console.groupEnd();
 	}
@@ -214,25 +217,31 @@ window.onload = function(){
 	C5.addEventListener("canplaythrough", canBePlayed4, false);
 	Buzz.addEventListener("canplaythrough", canBePlayed5, false);
 	
-	drawGame();
 	
-	let playButton = document.getElementById("play");
+	//I want to draw the game after everything is defined but before the play button obtains fonctionality
+	drawGame();
 
-	function resetGame(){
+	function resetGame(args){
 		clearInterval(iterator);
 		pattern = [];
-		for(var i = 0; i < 4; i++){
-			pattern.push(pickRandom(green, red, yellow, blue));
+		position = 0;
+		if(typeof args[0] === "number"){
+			for(var i in args){
+				pattern.push(args[i]);
+			}
+		} else {
+			for(i = 0; i < Game.startingPatternSize; i++){
+				pattern.push(pickRandom(GREEN, RED, YELLOW, BLUE));
+			}
 		}
 		logPattern("New pattern");
 		setTimeout(function(){
 			iterate();
 		}, 750);
 	}
-	
 	function startGame(){
-		for(var i = 0; i < 4; i++){
-			pattern.push(pickRandom(green, red, yellow, blue));
+		for(var i = 0; i < Game.startingPatternSize; i++){
+			pattern.push(pickRandom(GREEN, RED, YELLOW, BLUE));
 		}
 		logPattern("Starting pattern");
 		iterate();
@@ -241,8 +250,20 @@ window.onload = function(){
 		playButton.innerHTML = "Reset";
 	}
 	playButton.addEventListener("click", startGame);
+	
+
+	/* Dev tools */
+	window.Game = {
+		"getNextInput": () => COLOURS[pattern[position]],
+		"reset": resetGame,
+		"press": (a) => Buttons[a].press(),
+		"setPattern": function(){resetGame(arguments)},
+		"getPattern": () => logPattern("Pattern"),
+		"logUpadtes": false,
+		"startingPatternSize": 4
+	};
 }
 /* This has no function other than suppressing IDE errors */
 if(!window){
-	var console,document,window,setTimeout,setInterval,clearInterval;
+	var console,document,window,setTimeout,setInterval,clearInterval,Game;
 }
