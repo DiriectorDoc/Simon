@@ -61,9 +61,7 @@ window.onload = function(){
 			"press": function(){
 				note.play();
 				Buttons[i].on();
-				setTimeout(function(){
-					Buttons[i].off();
-				}, 400);
+				setTimeout(Buttons[i].off, 400);
 			}
 		}
 	}
@@ -168,14 +166,16 @@ window.onload = function(){
 				if(quadrant == pattern[position]){
 					pressable = false;
 					Buttons[quadrant].press();
-					setTimeout(function(){
-						pressable = true
-					}, 425);
+					if(position + 1 != pattern.length){
+						setTimeout(function(){
+							pressable = true
+						}, 425);
+					}
+					sequence();
 				} else {
 					Buzz.play();
 					pressable = false;
 				}
-				sequence();
 			}
 		}
 	}, false);
@@ -222,6 +222,7 @@ window.onload = function(){
 	drawGame();
 
 	function resetGame(args){
+		playButton.disabled = true;
 		clearInterval(iterator);
 		pattern = [];
 		position = 0;
@@ -234,20 +235,29 @@ window.onload = function(){
 				pattern.push(pickRandom(GREEN, RED, YELLOW, BLUE));
 			}
 		}
-		logPattern("New pattern");
+		if(Game.logUpadtes){
+			logPattern("New pattern");
+		}
 		setTimeout(function(){
 			iterate();
+			playButton.disabled = false;
 		}, 750);
 	}
 	function startGame(){
+		playButton.disabled = true;
 		for(var i = 0; i < Game.startingPatternSize; i++){
 			pattern.push(pickRandom(GREEN, RED, YELLOW, BLUE));
 		}
-		logPattern("Starting pattern");
-		iterate();
+		if(Game.logUpadtes){
+			logPattern("Starting pattern");
+		}
 		playButton.removeEventListener("click", startGame);
 		playButton.addEventListener("click", resetGame);
 		playButton.innerHTML = "Reset";
+		setTimeout(function(){
+			iterate();
+			playButton.disabled = false;
+		}, 375);
 	}
 	playButton.addEventListener("click", startGame);
 	
