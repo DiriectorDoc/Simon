@@ -1,5 +1,6 @@
 BODY{
     background-color: #000000;
+	margin: 8px 2px;
 }
 
 #canvas{
@@ -33,7 +34,7 @@ BODY{
 }
 
 .social A{
-	margin: 3pt;
+	margin: 5px;
 }
 
 #github{
