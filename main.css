@@ -22,21 +22,3 @@ BODY{
     margin: auto;
 	height: 2em;
 }
-
-.social SVG{
-	height:20px;
-	max-width:25px;
-	transition: all 250ms ease-out;
-}
-
-.social SVG:hover{
-	transform: scale(1.5);
-}
-
-.social A{
-	margin: 5px;
-}
-
-#github{
-	fill:white;
-}
